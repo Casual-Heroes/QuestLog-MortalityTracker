@@ -107,16 +107,32 @@ class Detector:
                 return
             time.sleep(0.05)
 
+    def _is_game_foreground(self):
+        try:
+            import ctypes
+            hwnd = ctypes.windll.user32.GetForegroundWindow()
+            length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+            buf = ctypes.create_unicode_buffer(length + 1)
+            ctypes.windll.user32.GetWindowTextW(hwnd, buf, length + 1)
+            title = buf.value.lower()
+            return "elden ring" in title
+        except Exception:
+            return True  # if we can't check, scan anyway
+
     def _ocr_loop(self):
         with mss.mss() as sct:
             while self._running:
                 try:
+                    if not self._is_game_foreground():
+                        self._in_death_screen = False
+                        time.sleep(POLL_INTERVAL)
+                        continue
+
                     monitor = sct.monitors[1]
                     region  = self._get_region(monitor)
                     img     = np.array(sct.grab(region))[:, :, :3]
                     text    = self._run_ocr(img)
 
-                    log.debug("OCR: '%s'", text)
                     if YOU_DIED_TEXT in text or _YOU_DIED_RE.search(text):
                         now = time.time()
                         if not self._in_death_screen and now - self._last_death_time > DEATH_COOLDOWN:
