@@ -102,7 +102,7 @@ data/                 — runtime data, not committed (runs, logs, settings)
 
 ## License
 
-MIT — free to use, fork, and build on.
+GNU General Public License v3.0 — free to use and modify, but any derivative work must also be open source under the same license.
 
 ---
 
