@@ -21,6 +21,10 @@ KILL_COOLDOWN  = 4.0
 POLL_INTERVAL  = 1.0   # OCR is heavier than pixel sampling — 1s is fine
 
 YOU_DIED_TEXT  = "you died"
+import re as _re
+# OCR mangles the dark red Reforged text — match "you died" fuzzily
+# "d?ed" catches both "died" and "dted", prefix catches "you"/"yoe"/"xou" etc.
+_YOU_DIED_RE = _re.compile(r'[xyv]?[yoeui][a-z#]{0,4}\s?d[a-z]?[ti]?ed')
 
 
 def _load_ocr():
@@ -112,7 +116,8 @@ class Detector:
                     img     = np.array(sct.grab(region))[:, :, :3]
                     text    = self._run_ocr(img)
 
-                    if YOU_DIED_TEXT in text:
+                    log.debug("OCR: '%s'", text)
+                    if YOU_DIED_TEXT in text or _YOU_DIED_RE.search(text):
                         now = time.time()
                         if not self._in_death_screen and now - self._last_death_time > DEATH_COOLDOWN:
                             self._in_death_screen = True
@@ -141,7 +146,11 @@ class Detector:
         }
 
     def _run_ocr(self, img_array):
+        from PIL import ImageEnhance
         img = Image.fromarray(img_array).convert("L")
+        # Boost contrast so dark red text (Reforged) reads as clearly as vanilla bright red
+        img = ImageEnhance.Contrast(img).enhance(3.0)
+        img = ImageEnhance.Brightness(img).enhance(1.5)
         w, h = img.size
         img = img.resize((w * 2, h * 2), Image.LANCZOS)
         img_np = np.array(img)
