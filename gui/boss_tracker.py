@@ -15,6 +15,7 @@ LOGO_QL     = os.path.join(ASSETS_DIR, "QL1.png")
 LOGO_QL_ICO = os.path.join(ASSETS_DIR, "QL1.ico")
 LOGO_CH    = os.path.join(ASSETS_DIR, "CH.png")
 SITE_URL   = "https://questlog.casual-heroes.com"
+GITHUB_URL = "https://github.com/Casual-Heroes/QuestLog-MortalityTracker"
 
 SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "settings.json")
 
@@ -858,11 +859,26 @@ class BossTrackerWindow(QMainWindow):
         """)
         site_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(SITE_URL)))
 
+        github_btn = QPushButton("⌥ Source Code")
+        github_btn.setFixedHeight(30)
+        github_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        github_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent; border: 1px solid {BORDER_SOLID};
+                border-radius: 6px; color: {TEXT_DIM};
+                padding: 0 12px; font-size: 10px; letter-spacing: 0.5px;
+            }}
+            QPushButton:hover {{ border-color: {ACCENT_GOLD}; color: {ACCENT_GOLD}; }}
+        """)
+        github_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(GITHUB_URL)))
+
         h_layout.addWidget(self.switch_btn)
         h_layout.addSpacing(4)
         h_layout.addWidget(self.pin_btn)
         h_layout.addSpacing(8)
         h_layout.addWidget(site_btn)
+        h_layout.addSpacing(4)
+        h_layout.addWidget(github_btn)
         root.addWidget(header)
 
         # ── Compact stats bar ──

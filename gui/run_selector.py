@@ -12,6 +12,7 @@ ASSETS_DIR = os.path.join(os.path.dirname(__file__), "..", "assets")
 LOGO_QL    = os.path.join(ASSETS_DIR, "QL1.png")
 LOGO_CH    = os.path.join(ASSETS_DIR, "CH.png")
 SITE_URL   = "https://questlog.casual-heroes.com"
+GITHUB_URL = "https://github.com/Casual-Heroes/QuestLog-MortalityTracker"
 
 from core.run import list_runs, create_run, delete_run, load_run_meta
 from games.registry import list_games
@@ -250,6 +251,19 @@ class RunSelectorWidget(QWidget):
         site_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         site_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(SITE_URL)))
         h_layout.addWidget(site_btn)
+
+        github_btn = QPushButton("⌥ Source Code")
+        github_btn.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent; border: 1px solid {BORDER_SOLID};
+                border-radius: 6px; color: {TEXT_MUTED};
+                padding: 6px 14px; font-size: 11px;
+            }}
+            QPushButton:hover {{ border-color: {ACCENT_GOLD}; color: {ACCENT_GOLD}; }}
+        """)
+        github_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        github_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(GITHUB_URL)))
+        h_layout.addWidget(github_btn)
 
         root.addWidget(header)
 
