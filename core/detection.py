@@ -1,9 +1,10 @@
+import re
 import threading
 import time
 import keyboard
 import mss
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageEnhance
 from core.crash_logger import get_logger
 
 log = get_logger("questlog.detection")
@@ -12,23 +13,19 @@ DEATH_HOTKEY = "f9"
 KILL_HOTKEY  = "f10"
 RESET_HOTKEY = "f8"
 
-# Region to scan — center of screen where YOU DIED text appears
-# Normalized ratios: (left, top, width, height) as fraction of screen
+# Normalized fractions of screen — works across 1080p/1440p/ultrawide
 SCAN_REGION = {"cx": 0.50, "cy": 0.52, "w": 0.35, "h": 0.10}
 
-DEATH_COOLDOWN = 8.0   # seconds between death triggers
+DEATH_COOLDOWN = 8.0
 KILL_COOLDOWN  = 4.0
-POLL_INTERVAL  = 1.0   # OCR is heavier than pixel sampling — 1s is fine
+POLL_INTERVAL  = 1.0
 
-YOU_DIED_TEXT  = "you died"
-import re as _re
-# OCR mangles the dark red Reforged text — match "you died" fuzzily
-# "d?ed" catches both "died" and "dted", prefix catches "you"/"yoe"/"xou" etc.
-_YOU_DIED_RE = _re.compile(r'[xyv]?[yoeui][a-z#]{0,4}\s?d[a-z]?[ti]?ed')
+YOU_DIED_TEXT = "you died"
+# Reforged uses dark crimson text that OCR misreads — fuzzy match on what we actually see
+_YOU_DIED_RE  = re.compile(r'[xyv]?[yoeui][a-z#]{0,4}\s?d[a-z]?[ti]?ed')
 
 
 def _load_ocr():
-    """Load easyocr reader. Called once in a background thread on startup."""
     import warnings
     warnings.filterwarnings("ignore", message="'pin_memory'")
     import easyocr
@@ -117,7 +114,7 @@ class Detector:
             title = buf.value.lower()
             return "elden ring" in title
         except Exception:
-            return True  # if we can't check, scan anyway
+            return True
 
     def _ocr_loop(self):
         with mss.mss() as sct:
@@ -162,9 +159,7 @@ class Detector:
         }
 
     def _run_ocr(self, img_array):
-        from PIL import ImageEnhance
         img = Image.fromarray(img_array).convert("L")
-        # Boost contrast so dark red text (Reforged) reads as clearly as vanilla bright red
         img = ImageEnhance.Contrast(img).enhance(3.0)
         img = ImageEnhance.Brightness(img).enhance(1.5)
         w, h = img.size
