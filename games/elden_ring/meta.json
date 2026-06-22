@@ -6,6 +6,6 @@
   "rage_label": "Tarnished Fury",
   "modes": [
     {"id": "vanilla",  "name": "Vanilla",              "includes_dlc": true},
-    {"id": "reforged", "name": "Elden Ring Reforged",  "includes_dlc": false}
+    {"id": "reforged", "name": "Elden Ring Reforged",  "includes_dlc": true}
   ]
 }

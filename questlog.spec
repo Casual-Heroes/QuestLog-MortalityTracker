@@ -9,7 +9,6 @@ a = Analysis(
     datas=[
         ('assets',          'assets'),
         ('games',           'games'),
-        ('overlay',         'overlay'),
     ],
     hiddenimports=[
         'games.elden_ring',
@@ -52,6 +51,11 @@ exe = EXE(
     icon='assets/QL1.ico',
 )
 
+import shutil, os
+# Copy overlay next to exe after build (not into _internal)
+overlay_src = os.path.join(SPECPATH, 'overlay')
+overlay_dst = os.path.join(DISTPATH, 'QuestLog', 'overlay')
+
 coll = COLLECT(
     exe,
     a.binaries,
@@ -62,3 +66,7 @@ coll = COLLECT(
     upx_exclude=[],
     name='QuestLog',
 )
+
+if os.path.exists(overlay_dst):
+    shutil.rmtree(overlay_dst)
+shutil.copytree(overlay_src, overlay_dst)
