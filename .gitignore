@@ -48,3 +48,4 @@ build/
 *_backup*/
 *_backup_*/
 build_log.txt
+questlog.spec
